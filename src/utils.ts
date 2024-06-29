@@ -9,22 +9,26 @@ export const toPublicKeyHex = (publicKey: Uint8Array): string => {
 };
 
 export const publicKeyToAddress = (publicKey: Uint8Array | Buffer | string) => {
+  let bufferPublicKey: Buffer | undefined;
+
   if (ArrayBuffer.isView(publicKey)) {
-    publicKey = Buffer.from(publicKey);
+    bufferPublicKey = Buffer.from(publicKey);
+  } else if (typeof publicKey === "string") {
+    const publicKeyWithoutHex = publicKey.startsWith("0x")
+      ? publicKey.slice(2)
+      : publicKey;
+    bufferPublicKey = Buffer.from(publicKeyWithoutHex, "hex");
+  } else if (Buffer.isBuffer(publicKey)) {
+    bufferPublicKey = publicKey;
   }
-
-  if (typeof publicKey === "string") {
-    publicKey = publicKey.startsWith("0x") ? publicKey.slice(2) : publicKey;
-    publicKey = Buffer.from(publicKey, "hex");
-  }
-
-  if (!Buffer.isBuffer(publicKey)) {
+  if (!bufferPublicKey) {
     throw new Error("Expected a Buffer or a hexadecimal string as argument");
   }
-  publicKey = Buffer.from(secp256k1.publicKeyConvert(publicKey, false)).slice(
-    1
-  );
-  const hash = jsSha3.keccak256(publicKey);
-  // TODO: const toChecksumAddress
-  return "0x" + hash.slice(-40);
+
+  const uncompressedPublicKey = Buffer.from(
+    secp256k1.publicKeyConvert(bufferPublicKey!, false)
+  ).slice(1);
+  const hashedPublicKey = jsSha3.keccak256(uncompressedPublicKey);
+  const address = "0x" + hashedPublicKey.slice(-40);
+  return address;
 };

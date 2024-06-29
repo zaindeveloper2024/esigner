@@ -7,8 +7,8 @@ export const createRandomWallet = () => {
   do {
     privateKey = randomBytes(32);
   } while (!secp256k1.privateKeyVerify(privateKey));
-  const publicKey = secp256k1.publicKeyCreate(privateKey);
-  const publicKeyHex = toPublicKeyHex(publicKey);
+  const publicKeyBytes = secp256k1.publicKeyCreate(privateKey);
+  const publicKeyHex = toPublicKeyHex(publicKeyBytes);
   const address = publicKeyToAddress(publicKeyHex);
   return {
     privateKey: privateKey.toString("hex"),
@@ -20,12 +20,11 @@ export const createRandomWallet = () => {
 export const createWalletFromPrivateKey = (privateKey: string) => {
   const privateKeyBuffer = Buffer.from(privateKey, "hex");
   const publicKeyBytes = secp256k1.publicKeyCreate(privateKeyBuffer);
-  const publicKey = toPublicKeyHex(publicKeyBytes);
+  const publicKeyHex = toPublicKeyHex(publicKeyBytes);
   const address = publicKeyToAddress(publicKeyBytes);
-
   return {
     privateKey,
-    publicKey,
+    publicKey: publicKeyHex,
     address,
   };
 };
