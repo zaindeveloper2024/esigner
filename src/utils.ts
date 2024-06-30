@@ -32,3 +32,19 @@ export const publicKeyToAddress = (publicKey: Uint8Array | Buffer | string) => {
   const address = "0x" + hashedPublicKey.slice(-40);
   return address;
 };
+
+const hexPrefix = /^0[xX]/;
+
+export const remove0x = (hex: string): string => {
+  return hex.replace(hexPrefix, "");
+};
+
+export const add0x = (hex: string): string => {
+  return hexPrefix.test(hex) ? hex : `0x${hex}`;
+};
+
+export const hexToUint8Array = (data: string): Uint8Array => {
+  let hex = remove0x(data);
+  hex = hex.length & 1 ? `0${hex}` : hex;
+  return Buffer.from(hex, "hex");
+};

@@ -2,6 +2,7 @@
   "name": "esigner",
   "type": "module",
   "dependencies": {
+    "@noble/curves": "^1.4.0",
     "js-sha3": "^0.9.3",
     "secp256k1": "^5.0.0"
   },
